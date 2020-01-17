@@ -1,6 +1,8 @@
 console.log('hello')
 
-let hero = {'pos': [0,0]}
+const canvas = document.getElementById( "canvas" );
+const ctx = canvas.getContext( "2d" );
+const tileGrassImage = document.getElementById( "tileGrass" );
 
 class Map {
     constructor(dimensions) {
@@ -42,11 +44,15 @@ class Map {
     }
 }
 
-let map = new Map(10)
-
+function draw( map ) {
+    console.log( tileGrassImage );
+    ctx.drawImage( tileGrassImage , 0 , 0 );
+}
+tileGrassImage.addEventListener( "load" , e => draw() );
 function add(c1, c2) {
     return [c1[0] + c2[0], c1[1] + c2[1]]
 }
+
 function attemptMove(map, hero, delta) {
     let new_coords = add(hero.pos, delta)
     if (map.tileIsPassable(new_coords)) {
@@ -69,16 +75,10 @@ document.addEventListener('keydown', (e) => {
     if ( e.key == "e") {
         attemptMove(map, hero, [0, -1])
     }
-    // if ( e.key == "s" && hero.pos[0] > 0 ) {
-    //     hero.pos[0]--;
-    // }
-    // if ( e.key == "d" && hero.pos[1] < map_dimensions - 1 ) {
-    //     hero.pos[1]++;
-    // }
-    // if ( e.key == "e" && hero.pos[1] > 0 ) {
-    //     hero.pos[1]--;
-    // }
     map.print( [hero] );
 })
 
+let hero = {'pos': [0,0]}
+let map = new Map(10)
+draw();
 map.print( [hero] );
