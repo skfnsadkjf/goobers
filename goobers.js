@@ -4,6 +4,7 @@ const canvas = document.getElementById( "canvas" );
 const ctx = canvas.getContext( "2d" );
 const tileGrassImage = document.getElementById( "tileGrass" );
 const tileRockImage = document.getElementById( "tileRock" );
+const alienBlueImage = document.getElementById( "alienBlue" );
 
 class Map {
     constructor(dimensions) {
@@ -48,15 +49,22 @@ class Map {
 const TILE_X = 65
 const TILE_Y = 53
 const TILE_X2 = Math.floor(TILE_X * 0.5)
-function draw( map ) {
+function draw( map, entities ) {
     console.log( tileGrassImage );
     for (y = 0; y < map.dimensions; y++) {
         for (x = 0; x < map.dimensions; x++) {
             let z = (y % 2) * TILE_X2
             let drawX = TILE_X * x + z;
             let drawY = TILE_Y * y;
+
             let t = map.get([x, y]) == '#' ? tileRockImage : tileGrassImage
             ctx.drawImage( t , drawX , drawY );
+            // Figure out if we need to draw an entity
+            let drawhero = entities.some(v => {
+                if ( v.pos[0] == x && v.pos[1] == y ) {
+                    ctx.drawImage( alienBlueImage , drawX , drawY );
+                }
+            })
         }
     }
 }
@@ -87,10 +95,11 @@ document.addEventListener('keydown', (e) => {
     if ( e.key == "e") {
         attemptMove(map, hero, [0, -1])
     }
+    draw( map , [hero] );
     map.print( [hero] );
 })
 
 let hero = {'pos': [0,0]}
 let map = new Map(10)
-tileGrassImage.addEventListener( "load" , e => draw( map ) );
+window.onload =  e => draw( map , [hero] );
 map.print( [hero] );
