@@ -3,6 +3,7 @@ console.log('hello')
 const canvas = document.getElementById( "canvas" );
 const ctx = canvas.getContext( "2d" );
 const tileGrassImage = document.getElementById( "tileGrass" );
+const tileRockImage = document.getElementById( "tileRock" );
 
 class Map {
     constructor(dimensions) {
@@ -54,7 +55,8 @@ function draw( map ) {
             let z = (y % 2) * TILE_X2
             let drawX = TILE_X * x + z;
             let drawY = TILE_Y * y;
-            ctx.drawImage( tileGrassImage , drawX , drawY );
+            let t = map.get([x, y]) == '#' ? tileRockImage : tileGrassImage
+            ctx.drawImage( t , drawX , drawY );
         }
     }
 }
