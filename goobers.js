@@ -44,11 +44,21 @@ class Map {
     }
 }
 
+const TILE_X = 65
+const TILE_Y = 53
+const TILE_X2 = Math.floor(TILE_X * 0.5)
 function draw( map ) {
     console.log( tileGrassImage );
-    ctx.drawImage( tileGrassImage , 0 , 0 );
+    for (y = 0; y < map.dimensions; y++) {
+        for (x = 0; x < map.dimensions; x++) {
+            let z = (y % 2) * TILE_X2
+            let drawX = TILE_X * x + z;
+            let drawY = TILE_Y * y;
+            ctx.drawImage( tileGrassImage , drawX , drawY );
+        }
+    }
 }
-tileGrassImage.addEventListener( "load" , e => draw() );
+
 function add(c1, c2) {
     return [c1[0] + c2[0], c1[1] + c2[1]]
 }
@@ -80,5 +90,5 @@ document.addEventListener('keydown', (e) => {
 
 let hero = {'pos': [0,0]}
 let map = new Map(10)
-draw();
+tileGrassImage.addEventListener( "load" , e => draw( map ) );
 map.print( [hero] );
