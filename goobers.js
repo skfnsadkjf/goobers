@@ -2,17 +2,22 @@ console.log('hello')
 
 let hero = {'pos': [0,0]}
 
-let map_dimensions = 10
-let map = Array.from({length: map_dimensions}, () => {
-    return Array.from({length: map_dimensions}, () =>
-        Math.random() > 0.2 ? '.' : '#'
-    )
-})
+let map = {
+    "dimensions": 10,
+    "data" : generateMap( 10 )
+}
+function generateMap( dimensions ) {
+    return Array.from({length: dimensions}, () => {
+        return Array.from({length: dimensions}, () =>
+            Math.random() > 0.2 ? '.' : '#'
+        )
+    })
+}
 
-function print_map(map, entities) {
+function printMap(map, entities) {
     // Build up an array of strings which will represent the map
-    let print_arr = Array.from( { "length" : map_dimensions } , v => "" );
-    map.forEach( ( col , x ) => {
+    let print_arr = Array.from( { "length" : map.dimensions } , v => "" );
+    map.data.forEach( ( col , x ) => {
         col.forEach( ( v , y ) => {
             drawhero = entities.some(v => {
                 return v.pos[0] == x && v.pos[1] == y
@@ -28,9 +33,9 @@ function print_map(map, entities) {
 function tileIsPassable( map , coords ) {
     if (coords[0] >= 0 &&
         coords[1] >= 0 &&
-        coords[0] < map_dimensions &&
-        coords[1] < map_dimensions) {
-        return map[coords[0]][coords[1]] != "#";
+        coords[0] < map.dimensions &&
+        coords[1] < map.dimensions) {
+        return map.data[coords[0]][coords[1]] != "#";
     } else {
         // Out of bounds
         return false
@@ -70,7 +75,7 @@ document.addEventListener('keydown', (e) => {
     // if ( e.key == "e" && hero.pos[1] > 0 ) {
     //     hero.pos[1]--;
     // }
-    print_map( map , [hero] );
+    printMap( map , [hero] );
 })
 
-print_map(map, [hero])
+printMap(map, [hero])
