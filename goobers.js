@@ -11,20 +11,14 @@ let grid = Array.from({length: map_dimensions}, () => {
 
 function print_map(map, entities) {
     map.forEach((row, y) => {
-        // row.forEach(v, x) => {
-            
-        // }
-        let s = row.join( "" );
-        entities.forEach(e => {
-            if (e.pos[1] == y) {
-                // console.log( s[0] );
-                s[e.pos[0]] = '%'
-            }
+        let s = ''
+        row.forEach((v, x) => {
+            drawhero = entities.some(v => {
+                return v.pos[0] == x && v.pos[1] == y
+            })
+            s += drawhero ? '%' : v
         })
         console.log(s)
-        // row.forEach(v => {
-        //     console.log(v)
-        // })
     })
 }
 
