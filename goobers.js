@@ -74,6 +74,13 @@ function add(c1, c2) {
 }
 
 function attemptMove(map, hero, delta) {
+    let isEven = hero.pos[1] % 2 == 0;
+    if ( isEven && delta[1] == -1 ) {
+        delta[0] -= 1;
+    }
+    if ( !isEven && delta[1] == 1 ) {
+        delta[0] += 1;
+    }
     let new_coords = add(hero.pos, delta)
     if (map.tileIsPassable(new_coords)) {
         hero.pos = new_coords;
@@ -89,11 +96,17 @@ document.addEventListener('keydown', (e) => {
     if ( e.key == "s") {
         attemptMove(map, hero, [-1, 0])
     }
-    if ( e.key == "d") {
-        attemptMove(map, hero, [0, 1])
+    if ( e.key == "r") {
+        attemptMove(map, hero, [1, -1])
     }
     if ( e.key == "e") {
         attemptMove(map, hero, [0, -1])
+    }
+    if ( e.key == "x") {
+        attemptMove(map, hero, [-1, 1])
+    }
+    if ( e.key == "c") {
+        attemptMove(map, hero, [0, 1])
     }
     draw( map , [hero] );
     map.print( [hero] );
