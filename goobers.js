@@ -10,16 +10,19 @@ let map = Array.from({length: map_dimensions}, () => {
 })
 
 function print_map(map, entities) {
-    map.forEach((row, y) => {
-        let s = ''
-        row.forEach((v, x) => {
+    // Build up an array of strings which will represent the map
+    let print_arr = Array.from( { "length" : map_dimensions } , v => "" );
+    map.forEach( ( col , x ) => {
+        col.forEach( ( v , y ) => {
             drawhero = entities.some(v => {
                 return v.pos[0] == x && v.pos[1] == y
             })
-            s += drawhero ? '%' : v
-        })
-        console.log(s)
-    })
+            print_arr[y] += drawhero ? '%' : v
+
+        } );
+    } );
+    // Print our array of strings
+    console.log( print_arr.join( "\n" ) );
 }
 
 function tileIsPassable( map , coords ) {
@@ -27,7 +30,7 @@ function tileIsPassable( map , coords ) {
         coords[1] >= 0 &&
         coords[0] < map_dimensions &&
         coords[1] < map_dimensions) {
-        return map[coords[1]][coords[0]] != "#";
+        return map[coords[0]][coords[1]] != "#";
     } else {
         // Out of bounds
         return false
