@@ -71,7 +71,7 @@ function draw( world ) {
 
 			let tileId = world.get( [x , y] );
 			let t = tileGraphics[tileId];
-			if ( t == 1 ) {
+			if ( tileId == tile.rock ) {
 				drawY -= 8
 			}
 			ctx.drawImage( t , drawX , drawY );
