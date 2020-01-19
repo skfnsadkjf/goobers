@@ -122,8 +122,14 @@ function onclick( e ) {
 	let path = pathfind( coords );
 	if ( path ) {
 		path = path.map( v => stringToPos( v ) );
-		path.forEach( v => world.set( v , tile.dirt ) );
-		hero.pos = path[0];
+		moveGuy( path );
+	}
+}
+function moveGuy( path ) {
+	hero.pos = path.pop();
+	draw( world , [hero] );
+	if ( path[0] ) {
+		window.setTimeout( moveGuy , 100 , path );
 	}
 }
 
