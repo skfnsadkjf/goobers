@@ -10,18 +10,27 @@ const alienBlueImage = document.getElementById( "alienBlue" );
 const TILE_X = 65;
 const TILE_Y = 53; // Represents height to begin tiling, NOT tile height.
 const TILE_R = Math.round( TILE_Y / 3 ); // represents top height of tile before maximum width is reached. Assumes regular hexagon.
-
+const graphics = [tileGrassImage , tileRockImage , tileDirtImage];
+const symbols = ['.', '#' , "$"]
+const tile = {
+	"grass" : 0 ,
+	"rock" : 1 ,
+	"dirt" : 2 ,
+}
 class World {
 	constructor(dimensions) {
 		this.dimensions = dimensions
 		this.data = Array.from({length: dimensions}, () => {
-			return Array.from({length: dimensions}, () =>
-				Math.random() > 0.4 ? '.' : '#'
-			)
+			return Array.from({length: dimensions}, () => {
+				return Math.random() > 0.1 ? tile.grass : tile.rock;
+			} );
 		})
 	}
 	get(coords) {
 		return this.data[coords[0]][coords[1]];
+	}
+	set( coords , tileType ) {
+		this.data[coords[0]][coords[1]] = tileType;
 	}
 	print(entities) {
 		// Build up an array of strings which will represent the world
@@ -43,7 +52,7 @@ class World {
 			coords[1] >= 0 &&
 			coords[0] < this.dimensions &&
 			coords[1] < this.dimensions) {
-			return this.get(coords) != "#";
+			return this.get(coords) != tile.rock;
 		} else {
 			// Out of bounds
 			return false
@@ -58,9 +67,10 @@ function draw( world, entities ) {
 			let drawX = TILE_X * x + z;
 			let drawY = TILE_Y * y;
 
-			let passable = world.get([x, y]) == '#'
-			let t = passable ? tileRockImage : tileGrassImage
-			if (passable) {
+
+			let tileId = world.get( [x , y] );
+			let t = graphics[tileId];
+			if ( t == 1 ) {
 				drawY -= 8
 			}
 			ctx.drawImage( t , drawX , drawY );
@@ -112,8 +122,10 @@ function onclick( e ) {
 		}
 	}
 	let coords = [x , y];
-	console.log( coords );
-	pathfind( coords );
+	let path = pathfind( coords );
+	if ( path ) {
+		path.forEach( v => world.set( v.split( "-" ).map( v => parseInt( v ) ) , tile.dirt ) );
+	}
 }
 
 // =====================
@@ -169,7 +181,7 @@ function pathfind( endCoords ) {
 				parent = closed.get( parent )[3];
 			}
 			console.log( path );
-			return
+			return path;
 		}
 		closed.set( currentKey , open.get( currentKey ) );
 		open.delete( currentKey );
@@ -193,7 +205,7 @@ function pathfind( endCoords ) {
 // =====================
 
 
-document.addEventListener('keydown', (e) => {
+function oninput( e ) {
 	if ( e.key == "f" ) {
 		attemptMove(world, hero, [1, 0])
 	}
@@ -212,9 +224,12 @@ document.addEventListener('keydown', (e) => {
 	if ( e.key == "c" ) {
 		attemptMove(world, hero, [0, 1])
 	}
+	if ( e.button == 0 ) {
+		onclick( e );
+	}
 	draw( world , [hero] );
 	// world.print( [hero] );
-})
+}
 
 let hero = {'pos': [0,0]}
 let world = new World( mapSize )
@@ -223,5 +238,6 @@ window.onload = e => {
 	canvas.width = window.innerWidth;
 	draw( world , [hero] );
 }
-canvas.addEventListener( "click" , onclick );
+canvas.addEventListener( "click" , oninput );
+document.addEventListener('keydown', oninput );
 // world.print( [hero] );
