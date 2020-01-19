@@ -121,7 +121,9 @@ function onclick( e ) {
 	let coords = [x , y];
 	let path = pathfind( coords );
 	if ( path ) {
-		path.forEach( v => world.set( v.split( "-" ).map( v => parseInt( v ) ) , tile.dirt ) );
+		path = path.map( v => stringToPos( v ) );
+		path.forEach( v => world.set( v , tile.dirt ) );
+		hero.pos = path[0];
 	}
 }
 
@@ -159,6 +161,7 @@ function getNeighbours( currentKey ) {
 	return validNeighbours.map( v => v );
 }
 const posToString = ( pos ) => pos[0] + "-" + pos[1];
+const stringToPos = ( str ) => str.split( "-" ).map( v => parseInt( v ) );
 function pathfind( endCoords ) {
 	const start = posToString( hero.pos );
 	const end = posToString( endCoords );
