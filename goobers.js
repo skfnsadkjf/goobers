@@ -3,20 +3,17 @@ const mapSize = 10;
 
 const canvas = document.getElementById( "canvas" );
 const ctx = canvas.getContext( "2d" );
-const tileGrassImage = document.getElementById( "tileGrass" );
-const tileRockImage = document.getElementById( "tileRock" );
-const tileDirtImage = document.getElementById( "tileDirt" );
 const alienBlueImage = document.getElementById( "alienBlue" );
 const TILE_X = 65;
 const TILE_Y = 53; // Represents height to begin tiling, NOT tile height.
 const TILE_R = Math.round( TILE_Y / 3 ); // represents top height of tile before maximum width is reached. Assumes regular hexagon.
-const graphics = [tileGrassImage , tileRockImage , tileDirtImage];
 const symbols = ['.', '#' , "$"]
 const tile = {
 	"grass" : 0 ,
 	"rock" : 1 ,
 	"dirt" : 2 ,
 }
+const tileGraphics = Object.keys( tile ).map( v => document.getElementById( "tile_" + v ) );
 class World {
 	constructor(dimensions) {
 		this.dimensions = dimensions
@@ -69,7 +66,7 @@ function draw( world, entities ) {
 
 
 			let tileId = world.get( [x , y] );
-			let t = graphics[tileId];
+			let t = tileGraphics[tileId];
 			if ( t == 1 ) {
 				drawY -= 8
 			}
