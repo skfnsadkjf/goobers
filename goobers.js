@@ -120,7 +120,7 @@ function onclick( e ) {
 	}
 	let coords = [x , y];
 	let path = pathfind( coords );
-	if ( path ) {
+	if ( path && path.length > 0 ) {
 		path = path.map( v => stringToPos( v ) );
 		moveGuy( path );
 	}
@@ -165,30 +165,28 @@ function pathfind( endCoords ) {
 	let open = new Map();
 	let closed = new Map();
 	let firstH = h( hero.pos , endCoords );
-	open.set( start , [firstH , 0 , firstH , false] ); // [f , g , h]
+	open.set( start , [firstH , 0 , firstH , start] ); // [f , g , h]
 	while ( open.size != 0 ) {
 		let currentKey = getLowestF( open );
-		let current = open.get( currentKey );
+		closed.set( currentKey , open.get( currentKey ) );
+		open.delete( currentKey );
 		if ( currentKey == end ) {
-			let path = [end];
-			let parent = open.get( end )[3];
-			while ( parent != start ) {
-				path.push( parent );
-				console.log( parent );
-				parent = closed.get( parent )[3];
+			let path = [];
+			while ( currentKey != start ) {
+				path.push( currentKey );
+				currentKey = closed.get( currentKey )[3];
+				console.log( currentKey );
 			}
 			console.log( path );
 			return path;
 		}
-		closed.set( currentKey , open.get( currentKey ) );
-		open.delete( currentKey );
 		let neighbours = getNeighbours( currentKey );
 		neighbours.forEach( coords => {
 			let key = posToString( coords );
 			if ( closed.has( key ) ) {
 				return
 			}
-			let gScoreNew = current[1] + 1;
+			let gScoreNew = closed.get( currentKey )[1] + 1;
 			if ( !open.has( key ) || gScoreNew < open.get( key )[1] ) {
 				let hScore = h( coords , endCoords );
 				let fScore = hScore + gScoreNew
