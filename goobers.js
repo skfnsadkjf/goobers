@@ -19,9 +19,10 @@ class World {
 		this.dimensions = dimensions
 		this.data = Array.from({length: dimensions}, () => {
 			return Array.from({length: dimensions}, () => {
-				return Math.random() > 0.1 ? tile.grass : tile.rock;
+				return Math.random() > 0.3 ? tile.grass : tile.rock;
 			} );
-		})
+		} );
+		this.entities = [hero];
 	}
 	get(coords) {
 		return this.data[coords[0]][coords[1]];
@@ -56,14 +57,17 @@ class World {
 		}
 	}
 }
-
-function draw( world, entities ) {
+/** converts game world x,y to canvas x,y  */
+function coordsToScreenPos( x , y ) {
+	let z = (y % 2) * Math.floor( TILE_X * 0.5 );
+	let drawX = TILE_X * x + z;
+	let drawY = TILE_Y * y;
+	return [drawX , drawY];
+}
+function draw( world ) {
 	for (y = 0; y < world.dimensions; y++) {
 		for (x = 0; x < world.dimensions; x++) {
-			let z = (y % 2) * Math.floor( TILE_X * 0.5 );
-			let drawX = TILE_X * x + z;
-			let drawY = TILE_Y * y;
-
+			let [drawX , drawY] = coordsToScreenPos( x , y );
 
 			let tileId = world.get( [x , y] );
 			let t = tileGraphics[tileId];
@@ -72,13 +76,12 @@ function draw( world, entities ) {
 			}
 			ctx.drawImage( t , drawX , drawY );
 			// Figure out if we need to draw an entity
-			let drawhero = entities.some(v => {
-				if ( v.pos[0] == x && v.pos[1] == y ) {
-					ctx.drawImage( alienBlueImage , drawX , drawY );
-				}
-			})
 		}
 	}
+	world.entities.forEach( v => {
+		let [drawX , drawY] = coordsToScreenPos( v.pos[0] , v.pos[1] );
+		ctx.drawImage( alienBlueImage , drawX , drawY );
+	} );
 }
 
 function add(c1, c2) {
@@ -127,7 +130,7 @@ function onclick( e ) {
 }
 function moveGuy( path ) {
 	hero.pos = path.pop();
-	draw( world , [hero] );
+	draw( world );
 	if ( path[0] ) {
 		window.setTimeout( moveGuy , 100 , path );
 	}
@@ -233,7 +236,7 @@ function oninput( e ) {
 	if ( e.button == 0 ) {
 		onclick( e );
 	}
-	draw( world , [hero] );
+	draw( world );
 	// world.print( [hero] );
 }
 
@@ -242,7 +245,7 @@ let world = new World( mapSize )
 window.onload = e => {
 	canvas.height = window.innerHeight - 3;
 	canvas.width = window.innerWidth;
-	draw( world , [hero] );
+	draw( world );
 }
 canvas.addEventListener( "click" , oninput );
 document.addEventListener('keydown', oninput );
