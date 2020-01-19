@@ -1,25 +1,27 @@
 
-const mapSize = 10;
+const mapSize = 25;
 
 const canvas = document.getElementById( "canvas" );
 const ctx = canvas.getContext( "2d" );
 const alienBlueImage = document.getElementById( "alienBlue" );
-const TILE_X = 65;
-const TILE_Y = 53; // Represents height to begin tiling, NOT tile height.
+const TILE_X = 60;
+const TILE_Y = Math.floor( TILE_X * 0.866025 ); // Represents height to begin tiling, NOT tile height. Assumes regular hexagon.
 const TILE_R = Math.round( TILE_Y / 3 ); // represents top height of tile before maximum width is reached. Assumes regular hexagon.
 const symbols = ['.', '#' , "$"]
 const tile = {
 	"grass" : 0 ,
 	"rock" : 1 ,
 	"dirt" : 2 ,
+	"water" : 3 ,
 }
 const tileGraphics = Object.keys( tile ).map( v => document.getElementById( "tile_" + v ) );
+const MOVE_SPEED = 20;
 class World {
 	constructor(dimensions) {
 		this.dimensions = dimensions
 		this.data = Array.from({length: dimensions}, () => {
 			return Array.from({length: dimensions}, () => {
-				return Math.random() > 0.1 ? tile.grass : tile.rock;
+				return Math.random() > 0.3 ? tile.grass : tile.water;
 			} );
 		} );
 		this.entities = [hero];
@@ -50,7 +52,7 @@ class World {
 			coords[1] >= 0 &&
 			coords[0] < this.dimensions &&
 			coords[1] < this.dimensions) {
-			return this.get(coords) != tile.rock;
+			return this.get(coords) != tile.water;
 		} else {
 			// Out of bounds
 			return false
@@ -71,9 +73,6 @@ function draw( world ) {
 
 			let tileId = world.get( [x , y] );
 			let t = tileGraphics[tileId];
-			if ( tileId == tile.rock ) {
-				drawY -= 8
-			}
 			ctx.drawImage( t , drawX , drawY );
 		}
 	}
@@ -83,11 +82,6 @@ function draw( world ) {
 	} );
 }
 
-function add(c1, c2) {
-	return [c1[0] + c2[0], c1[1] + c2[1]];
-}
-
-
 function addDeltaPlusOffset( pos , delta ) {
 	let isEven = pos[1] % 2 == 0;
 	if ( isEven && delta[1] == -1 ) {
@@ -96,7 +90,7 @@ function addDeltaPlusOffset( pos , delta ) {
 	if ( !isEven && delta[1] == 1 ) {
 		delta[0] += 1;
 	}
-	return add( pos , delta );
+	return [pos[0] + delta[0] , pos[1] + delta[1]];
 }
 function attemptMove(world, hero, delta) {
 	let newCoords = addDeltaPlusOffset( hero.pos , delta );
@@ -135,7 +129,7 @@ function moveGuy( path ) {
 	hero.pos = path.pop();
 	draw( world );
 	if ( path[0] ) {
-		window.setTimeout( moveGuy , 100 , path );
+		window.setTimeout( moveGuy , MOVE_SPEED , path );
 	}
 }
 
