@@ -85,10 +85,10 @@ function draw( world ) {
 }
 
 function add(c1, c2) {
-	return [c1[0] + c2[0], c1[1] + c2[1]]
+	return [c1[0] + c2[0], c1[1] + c2[1]];
 }
 
-function attemptMove(world, hero, delta) {
+function addDeltaPlusOffset( pos , delta ) {
 	let isEven = hero.pos[1] % 2 == 0;
 	if ( isEven && delta[1] == -1 ) {
 		delta[0] -= 1;
@@ -96,7 +96,10 @@ function attemptMove(world, hero, delta) {
 	if ( !isEven && delta[1] == 1 ) {
 		delta[0] += 1;
 	}
-	let new_coords = add(hero.pos, delta)
+	return add( pos , delta );
+}
+function attemptMove(world, hero, delta) {
+	let newCoords = addDeltaPlusOffset( hero.pos , delta );
 	if (world.tileIsPassable(new_coords)) {
 		hero.pos = new_coords;
 	}
@@ -156,16 +159,27 @@ function getLowestF( open ) {
 function getNeighbours( currentKey ) {
 	let coords = currentKey.split( "-" ).map( v => parseInt( v ) );
 	let hexOffsets = [[1,0],[1,-1],[0,1],[0,-1],[-1,1],[-1,0]];
-	let neighbours = hexOffsets.map( delta => {
-		let isEven = coords[1] % 2 == 0;
-		if ( isEven && delta[1] == -1 ) {
-			delta[0] -= 1;
-		}
-		if ( !isEven && delta[1] == 1 ) {
-			delta[0] += 1;
-		}
-		return [delta[0] + coords[0] , delta[1] + coords[1]];
-	} );
+// function addDeltaPlusOffset( pos , delta ) {
+// 	let isEven = hero.pos[1] % 2 == 0;
+// 	if ( isEven && delta[1] == -1 ) {
+// 		delta[0] -= 1;
+// 	}
+// 	if ( !isEven && delta[1] == 1 ) {
+// 		delta[0] += 1;
+// 	}
+// 	return add( pos , delta );
+// }
+	let neighbours = hexOffsets.map( delta => addDeltaPlusOffset( coords , delta ) );
+	let neighbours = hexOffsets.map( delta => addDeltaPlusOffset( coords , delta ) );
+		// let isEven = coords[1] % 2 == 0;
+		// if ( isEven && delta[1] == -1 ) {
+		// 	delta[0] -= 1;
+		// }
+		// if ( !isEven && delta[1] == 1 ) {
+		// 	delta[0] += 1;
+		// }
+		// return [delta[0] + coords[0] , delta[1] + coords[1]];
+	// } );
 	let validNeighbours = neighbours.filter( v => world.tileIsPassable( v ) );
 	return validNeighbours.map( v => v );
 }
