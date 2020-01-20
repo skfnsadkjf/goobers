@@ -1,5 +1,6 @@
 import { TILE_X , TILE_Y , addDeltaPlusOffset } from "./goobers.js";
 export { pathfind };
+const hexOffsets = [[1,0],[1,-1],[0,1],[0,-1],[-1,1],[-1,0]];
 const posToString = ( pos ) => pos[0] + "-" + pos[1];
 const stringToPos = ( str ) => str.split( "-" ).map( v => parseInt( v ) );
 const h = ( a , b ) => Math.sqrt( ( a[0] - b[0] )**2 + ( a[1] - b[1] )**2 );
@@ -16,10 +17,8 @@ function getLowestF( open ) {
 }
 function getNeighbours( currentKey , world ) {
 	let coords = currentKey.split( "-" ).map( v => parseInt( v ) );
-	let hexOffsets = [[1,0],[1,-1],[0,1],[0,-1],[-1,1],[-1,0]];
-	let neighbours = hexOffsets.map( delta => addDeltaPlusOffset( coords , delta ) );
-	let validNeighbours = neighbours.filter( v => world.tileIsPassable( v ) );
-	return validNeighbours.map( v => v );
+	let neighbours = hexOffsets.map( delta => addDeltaPlusOffset( ...coords , ...delta ) );
+	return neighbours.filter( v => world.tileIsPassable( v ) );
 }
 function pathfind( endCoords , hero , world ) {
 	const start = posToString( hero.pos );
@@ -27,7 +26,7 @@ function pathfind( endCoords , hero , world ) {
 	let open = new Map();
 	let closed = new Map();
 	let firstH = h( hero.pos , endCoords );
-	open.set( start , [firstH , 0 , firstH , start] ); // [f , g , h]
+	open.set( start , [firstH , 0 , firstH , start] ); // [f , g , h , parent]
 	while ( open.size != 0 ) {
 		let currentKey = getLowestF( open );
 		closed.set( currentKey , open.get( currentKey ) );

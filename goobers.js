@@ -50,19 +50,18 @@ class World {
 		}
 	}
 }
-
-function addDeltaPlusOffset( pos , delta ) {
-	let isEven = pos[1] % 2 == 0;
-	if ( isEven && delta[1] == -1 ) {
-		delta[0] -= 1;
+function addDeltaPlusOffset( x , y , dx , dy ) {
+	let isEven = y % 2 == 0;
+	if ( isEven && dy == -1 ) {
+		dx -= 1;
 	}
-	if ( !isEven && delta[1] == 1 ) {
-		delta[0] += 1;
+	if ( !isEven && dy == 1 ) {
+		dx += 1;
 	}
-	return [pos[0] + delta[0] , pos[1] + delta[1]];
+	return [x + dx , y + dy];
 }
 function attemptMove(world, hero, delta) {
-	let newCoords = addDeltaPlusOffset( hero.pos , delta );
+	let newCoords = addDeltaPlusOffset( ...hero.pos , ...delta );
 	if ( world.tileIsPassable( newCoords ) ) {
 		hero.pos = newCoords;
 	}
@@ -74,7 +73,7 @@ function screenPosToCoords( screenX , screenY ) {
 	let dongs = ( offsetX % TILE_X - TILE_X / 2 ) * 0.577350; // 0.577350 normalises TILE_X / 2 to TILE_Y / 3.
 	if ( Math.abs( dongs ) > screenY % TILE_Y ) {
 		let deltaX = ( dongs < 0 ) ? 0 : 1;
-		[x , y] = addDeltaPlusOffset( [x , y] , [deltaX , -1] );
+		[x , y] = addDeltaPlusOffset( x , y , deltaX , -1 );
 	}
 	return [x , y];
 }

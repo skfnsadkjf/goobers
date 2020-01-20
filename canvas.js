@@ -29,8 +29,8 @@ function draw( world ) {
 	let maxY = screen.sizeY - 100;
 	let amountX = Math.ceil( ( maxX - minX ) / TILE_X );
 	let amountY = Math.ceil( ( maxY - minY + TILE_Y / 3 ) / TILE_Y );
-	for ( let y = 0; y < amountY; y++ ) {
-		for ( let x = 0; x < amountX; x++ ) {
+	for ( let y = 0; y < amountY && y < world.dimensions; y++ ) {
+		for ( let x = 0; x < amountX && x < world.dimensions; x++ ) {
 			let [drawX , drawY] = coordsToScreenPos( x , y );
 			let tileId = world.get( [x , y] );
 			let t = tileGraphics[tileId];
