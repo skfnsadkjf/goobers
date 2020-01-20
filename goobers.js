@@ -1,32 +1,18 @@
 // import "./pathfinding.js"
 import { pathfind } from "./pathfinding.js";
+import { draw } from "./canvas.js";
 export { TILE_X , TILE_Y , addDeltaPlusOffset };
 const mapSize = 25;
-
-const canvas = document.getElementById( "canvas" );
-const ctx = canvas.getContext( "2d" );
-const alienBlueImage = document.getElementById( "alienBlue" );
 const TILE_X = 60;
 const TILE_Y = Math.floor( TILE_X * 0.866025 ); // Represents height to begin tiling, NOT tile height. Assumes regular hexagon.
-// const TILE_R = Math.round( TILE_Y / 3 ); // represents top height of tile before maximum width is reached. Assumes regular hexagon.
 const symbols = ['.', '#' , "$"]
-const tile = {
-	"grass" : 0 ,
-	"rock" : 1 ,
-	"dirt" : 2 ,
-	"water" : 3 ,
-	"border" : 4 ,
-	"hero" : 5 ,
-	"gobbo" : 5 ,
-}
-const tileGraphics = Object.keys( tile ).map( v => document.getElementById( "tile_" + v ) );
 const MOVE_SPEED = 20;
 class World {
 	constructor(dimensions) {
 		this.dimensions = dimensions
 		this.data = Array.from({length: dimensions}, () => {
 			return Array.from({length: dimensions}, () => {
-				return Math.random() > 0.3 ? tile.grass : tile.water;
+				return Math.random() > 0.3 ? 0 : 3;
 			} );
 		} );
 		this.entities = [];
@@ -57,47 +43,12 @@ class World {
 			coords[1] >= 0 &&
 			coords[0] < this.dimensions &&
 			coords[1] < this.dimensions) {
-			return this.get(coords) != tile.water;
+			return this.get(coords) != 3;
 		} else {
 			// Out of bounds
 			return false
 		}
 	}
-}
-/** converts game world x,y to canvas x,y  */
-function coordsToScreenPos( x , y ) {
-	let z = (y % 2) * Math.floor( TILE_X * 0.5 );
-	let drawX = TILE_X * x + z;
-	let drawY = TILE_Y * y;
-	return [drawX , drawY];
-}
-function draw( world ) {
-	console.log( "dongs" );
-	// get hexes in area then only draw those.
-	let minX = 10;
-	let minY = 10;
-	let maxX = screen.sizeX - 300;
-	let maxY = screen.sizeY - 100;
-	let amountX = Math.ceil( ( maxX - minX ) / TILE_X );
-	let amountY = Math.ceil( ( maxY - minY + TILE_Y / 3 ) / TILE_Y );
-	for ( let y = 0; y < amountY; y++ ) {
-		for ( let x = 0; x < amountX; x++ ) {
-			let [drawX , drawY] = coordsToScreenPos( x , y );
-			let tileId = world.get( [x , y] );
-			let t = tileGraphics[tileId];
-			ctx.drawImage( t , drawX , drawY );
-		}
-	}
-	// let region = new Path2D();
-	// region.rect( 0 , 0 , screen.sizeX , screen.sizeY );
-	// region.rect( minX , minY , maxX - minX , maxY - minY );
-	// ctx.clip( region , "evenodd" );
-	// ctx.fillStyle = "blue";
-	// ctx.fillRect( 0 , 0 , screen.sizeX , screen.sizeY );
-	world.entities.forEach( entity => {
-		let [drawX , drawY] = coordsToScreenPos( entity.pos[0] , entity.pos[1] );
-		ctx.drawImage( tileGraphics[tile[entity.tile]] , drawX , drawY );
-	} );
 }
 
 function addDeltaPlusOffset( pos , delta ) {
@@ -170,23 +121,12 @@ function oninput( e ) {
 	draw( world );
 }
 
-let screen = {
-	"sizeX" : window.innerWidth ,
-	"sizeY" : window.innerHeight ,
-	"posX" : 0 ,
-	"posY" : 0 ,
-}
 let world = new World( mapSize )
 let hero = { "pos" : [0 , 0] , "tile" : "hero" , "army" : Array( 7 ).push( ["gobbo" , 10] ) };
 let border = { "pos" : [0 , 0] , "tile" : "border" };
 let creature = { "pos" : [10 , 10] , "tile" : "gobbo" , "army" : Array( 7 ).push( ["gobbo" , 5] ) };
 world.entities.push( hero , border , creature );
-window.onload = e => {
-	canvas.height = window.innerHeight - 5;
-	canvas.width = window.innerWidth;
-	draw( world );
-}
-// window.setInterval( draw , 1000/60 , world );
-canvas.addEventListener( "click" , onclick );
-canvas.addEventListener( "mousemove" , onmousemove );
+document.addEventListener( "click" , onclick );
+document.addEventListener( "mousemove" , onmousemove );
 document.addEventListener('keydown', oninput );
+draw( world );
