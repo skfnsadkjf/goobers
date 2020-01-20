@@ -1,4 +1,6 @@
-
+// import "./pathfinding.js"
+import { pathfind } from "./pathfinding.js";
+export { TILE_X , TILE_Y , addDeltaPlusOffset };
 const mapSize = 25;
 
 const canvas = document.getElementById( "canvas" );
@@ -78,8 +80,8 @@ function draw( world ) {
 	let maxY = screen.sizeY - 100;
 	let amountX = Math.ceil( ( maxX - minX ) / TILE_X );
 	let amountY = Math.ceil( ( maxY - minY + TILE_Y / 3 ) / TILE_Y );
-	for ( y = 0; y < amountY; y++ ) {
-		for ( x = 0; x < amountX; x++ ) {
+	for ( let y = 0; y < amountY; y++ ) {
+		for ( let x = 0; x < amountX; x++ ) {
 			let [drawX , drawY] = coordsToScreenPos( x , y );
 			let tileId = world.get( [x , y] );
 			let t = tileGraphics[tileId];
@@ -126,78 +128,12 @@ function screenPosToCoords( screenX , screenY ) {
 	return [x , y];
 }
 function moveGuy( path ) {
-	hero.pos = path.pop();
-	draw( world );
 	if ( path[0] ) {
+		hero.pos = path.pop();
+		draw( world );
 		window.setTimeout( moveGuy , MOVE_SPEED , path );
 	}
 }
-
-// =====================
-// pathfinding functions
-function h( a , b ) {
-	return Math.sqrt( ( a[0] - b[0] )**2 + ( a[1] - b[1] )**2 );
-
-}
-function getLowestF( open ) {
-	let lowestKey = false;
-	let lowestValue = Infinity;
-	open.forEach( ( v , key ) => {
-		if ( v[0] < lowestValue ) {
-			lowestValue = v[0];
-			lowestKey = key;
-		}
-	} );
-	return lowestKey;
-}
-function getNeighbours( currentKey ) {
-	let coords = currentKey.split( "-" ).map( v => parseInt( v ) );
-	let hexOffsets = [[1,0],[1,-1],[0,1],[0,-1],[-1,1],[-1,0]];
-	let neighbours = hexOffsets.map( delta => addDeltaPlusOffset( coords , delta ) );
-	let validNeighbours = neighbours.filter( v => world.tileIsPassable( v ) );
-	return validNeighbours.map( v => v );
-}
-const posToString = ( pos ) => pos[0] + "-" + pos[1];
-const stringToPos = ( str ) => str.split( "-" ).map( v => parseInt( v ) );
-function pathfind( endCoords ) {
-	const start = posToString( hero.pos );
-	const end = posToString( endCoords );
-	let open = new Map();
-	let closed = new Map();
-	let firstH = h( hero.pos , endCoords );
-	open.set( start , [firstH , 0 , firstH , start] ); // [f , g , h]
-	while ( open.size != 0 ) {
-		let currentKey = getLowestF( open );
-		closed.set( currentKey , open.get( currentKey ) );
-		open.delete( currentKey );
-		if ( currentKey == end ) {
-			let path = [];
-			while ( currentKey != start ) {
-				path.push( currentKey );
-				currentKey = closed.get( currentKey )[3];
-				console.log( currentKey );
-			}
-			console.log( path );
-			return path;
-		}
-		let neighbours = getNeighbours( currentKey );
-		neighbours.forEach( coords => {
-			let key = posToString( coords );
-			if ( closed.has( key ) ) {
-				return
-			}
-			let gScoreNew = closed.get( currentKey )[1] + 1;
-			if ( !open.has( key ) || gScoreNew < open.get( key )[1] ) {
-				let hScore = h( coords , endCoords );
-				let fScore = hScore + gScoreNew
-				open.set( key , [fScore , gScoreNew , hScore , currentKey] );
-			}
-		} );
-	}
-
-}
-// pathfinding end
-// =====================
 function onmousemove( e ) {
 	let [x , y] = screenPosToCoords( e.clientX , e.clientY );
 	if ( border.pos[0] != x || border.pos[1] != y ) {
@@ -207,11 +143,8 @@ function onmousemove( e ) {
 }
 function onclick( e ) {
 	if ( e.button == 0 ) {
-		let path = pathfind( screenPosToCoords( e.clientX , e.clientY ) );
-		if ( path && path.length > 0 ) {
-			path = path.map( v => stringToPos( v ) );
-			moveGuy( path );
-		}
+		let path = pathfind( screenPosToCoords( e.clientX , e.clientY ) , hero , world );
+		moveGuy( path );
 		draw( world );
 	}
 }
