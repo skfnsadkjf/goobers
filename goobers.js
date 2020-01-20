@@ -13,6 +13,8 @@ const tile = {
 	"rock" : 1 ,
 	"dirt" : 2 ,
 	"water" : 3 ,
+	"border" : 4 ,
+	"hero" : 5 ,
 }
 const tileGraphics = Object.keys( tile ).map( v => document.getElementById( "tile_" + v ) );
 const MOVE_SPEED = 20;
@@ -76,9 +78,9 @@ function draw( world ) {
 			ctx.drawImage( t , drawX , drawY );
 		}
 	}
-	world.entities.forEach( v => {
-		let [drawX , drawY] = coordsToScreenPos( v.pos[0] , v.pos[1] );
-		ctx.drawImage( alienBlueImage , drawX , drawY );
+	world.entities.forEach( entity => {
+		let [drawX , drawY] = coordsToScreenPos( entity.pos[0] , entity.pos[1] );
+		ctx.drawImage( tileGraphics[tile[entity.tile]] , drawX , drawY );
 	} );
 }
 
@@ -191,7 +193,9 @@ function pathfind( endCoords ) {
 // pathfinding end
 // =====================
 
-
+function ommousemove( e ) {
+	let border = world.entities.find()
+}
 function oninput( e ) {
 	if ( e.key == "f" ) {
 		attemptMove(world, hero, [1, 0])
@@ -218,7 +222,7 @@ function oninput( e ) {
 	// world.print( [hero] );
 }
 
-let hero = {'pos': [0,0]}
+let hero = { "pos" : [0 , 0] , "tile" : "hero" };
 let world = new World( mapSize )
 window.onload = e => {
 	canvas.height = window.innerHeight - 3;
