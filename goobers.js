@@ -15,6 +15,7 @@ const tile = {
 	"water" : 3 ,
 	"border" : 4 ,
 	"hero" : 5 ,
+	"gobbo" : 5 ,
 }
 const tileGraphics = Object.keys( tile ).map( v => document.getElementById( "tile_" + v ) );
 const MOVE_SPEED = 20;
@@ -243,9 +244,10 @@ let screen = {
 	"posY" : 0 ,
 }
 let world = new World( mapSize )
-let hero = { "pos" : [0 , 0] , "tile" : "hero" };
+let hero = { "pos" : [0 , 0] , "tile" : "hero" , "army" : Array( 7 ).push( ["gobbo" , 10] ) };
 let border = { "pos" : [0 , 0] , "tile" : "border" };
-world.entities.push( hero , border );
+let creature = { "pos" : [10 , 10] , "tile" : "gobbo" , "army" : Array( 7 ).push( ["gobbo" , 5] ) };
+world.entities.push( hero , border , creature );
 window.onload = e => {
 	canvas.height = window.innerHeight - 5;
 	canvas.width = window.innerWidth;
