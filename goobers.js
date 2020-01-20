@@ -6,7 +6,7 @@ const ctx = canvas.getContext( "2d" );
 const alienBlueImage = document.getElementById( "alienBlue" );
 const TILE_X = 60;
 const TILE_Y = Math.floor( TILE_X * 0.866025 ); // Represents height to begin tiling, NOT tile height. Assumes regular hexagon.
-const TILE_R = Math.round( TILE_Y / 3 ); // represents top height of tile before maximum width is reached. Assumes regular hexagon.
+// const TILE_R = Math.round( TILE_Y / 3 ); // represents top height of tile before maximum width is reached. Assumes regular hexagon.
 const symbols = ['.', '#' , "$"]
 const tile = {
 	"grass" : 0 ,
@@ -26,7 +26,7 @@ class World {
 				return Math.random() > 0.3 ? tile.grass : tile.water;
 			} );
 		} );
-		this.entities = [hero];
+		this.entities = [];
 	}
 	get(coords) {
 		return this.data[coords[0]][coords[1]];
@@ -70,15 +70,27 @@ function coordsToScreenPos( x , y ) {
 }
 function draw( world ) {
 	console.log( "dongs" );
-	for (y = 0; y < world.dimensions; y++) {
-		for (x = 0; x < world.dimensions; x++) {
+	// get hexes in area then only draw those.
+	let minX = 10;
+	let minY = 10;
+	let maxX = screen.sizeX - 300;
+	let maxY = screen.sizeY - 100;
+	let amountX = Math.ceil( ( maxX - minX ) / TILE_X );
+	let amountY = Math.ceil( ( maxY - minY + TILE_Y / 3 ) / TILE_Y );
+	for ( y = 0; y < amountY; y++ ) {
+		for ( x = 0; x < amountX; x++ ) {
 			let [drawX , drawY] = coordsToScreenPos( x , y );
-
 			let tileId = world.get( [x , y] );
 			let t = tileGraphics[tileId];
 			ctx.drawImage( t , drawX , drawY );
 		}
 	}
+	// let region = new Path2D();
+	// region.rect( 0 , 0 , screen.sizeX , screen.sizeY );
+	// region.rect( minX , minY , maxX - minX , maxY - minY );
+	// ctx.clip( region , "evenodd" );
+	// ctx.fillStyle = "blue";
+	// ctx.fillRect( 0 , 0 , screen.sizeX , screen.sizeY );
 	world.entities.forEach( entity => {
 		let [drawX , drawY] = coordsToScreenPos( entity.pos[0] , entity.pos[1] );
 		ctx.drawImage( tileGraphics[tile[entity.tile]] , drawX , drawY );
@@ -111,14 +123,6 @@ function screenPosToCoords( screenX , screenY ) {
 		[x , y] = addDeltaPlusOffset( [x , y] , [deltaX , -1] );
 	}
 	return [x , y];
-}
-function onclick( e ) {
-	let coords = screenPosToCoords( e.clientX , e.clientY );
-	let path = pathfind( coords );
-	if ( path && path.length > 0 ) {
-		path = path.map( v => stringToPos( v ) );
-		moveGuy( path );
-	}
 }
 function moveGuy( path ) {
 	hero.pos = path.pop();
@@ -193,24 +197,22 @@ function pathfind( endCoords ) {
 }
 // pathfinding end
 // =====================
-
 function onmousemove( e ) {
-	let border = world.entities.find( entity => entity.tile == "border" );
 	let [x , y] = screenPosToCoords( e.clientX , e.clientY );
-	// let doDraw = false;
-	// if ( border == undefined || border.pos[0] != x || border.pos[1] != y ) {
-	// 	doDraw = true;
-	// }
-	if ( border == undefined ) {
-		let border = { "pos" : [x , y] , "tile" : "border" }
-		world.entities.push( border);
-	}
-	else {
+	if ( border.pos[0] != x || border.pos[1] != y ) {
 		border.pos = [x , y];
-	}
-	// if ( doDraw ) {
 		draw( world );
-	// }
+	}
+}
+function onclick( e ) {
+	if ( e.button == 0 ) {
+		let path = pathfind( screenPosToCoords( e.clientX , e.clientY ) );
+		if ( path && path.length > 0 ) {
+			path = path.map( v => stringToPos( v ) );
+			moveGuy( path );
+		}
+		draw( world );
+	}
 }
 function oninput( e ) {
 	if ( e.key == "f" ) {
@@ -231,22 +233,25 @@ function oninput( e ) {
 	if ( e.key == "c" ) {
 		attemptMove(world, hero, [0, 1])
 	}
-	if ( e.button == 0 ) {
-		onclick( e );
-	}
 	draw( world );
-	// world.print( [hero] );
 }
 
-let hero = { "pos" : [0 , 0] , "tile" : "hero" };
+let screen = {
+	"sizeX" : window.innerWidth ,
+	"sizeY" : window.innerHeight ,
+	"posX" : 0 ,
+	"posY" : 0 ,
+}
 let world = new World( mapSize )
+let hero = { "pos" : [0 , 0] , "tile" : "hero" };
+let border = { "pos" : [0 , 0] , "tile" : "border" };
+world.entities.push( hero , border );
 window.onload = e => {
-	canvas.height = window.innerHeight - 3;
+	canvas.height = window.innerHeight - 5;
 	canvas.width = window.innerWidth;
 	draw( world );
 }
 // window.setInterval( draw , 1000/60 , world );
-canvas.addEventListener( "click" , oninput );
+canvas.addEventListener( "click" , onclick );
 canvas.addEventListener( "mousemove" , onmousemove );
 document.addEventListener('keydown', oninput );
-// world.print( [hero] );
