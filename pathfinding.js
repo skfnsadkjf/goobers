@@ -1,0 +1,73 @@
+const TILE_X = 60;
+const TILE_Y = Math.floor( TILE_X * 0.866025 ); // Represents height to begin tiling, NOT tile height. Assumes regular hexagon.
+function addDeltaPlusOffset( pos , delta ) {
+	let isEven = pos[1] % 2 == 0;
+	if ( isEven && delta[1] == -1 ) {
+		delta[0] -= 1;
+	}
+	if ( !isEven && delta[1] == 1 ) {
+		delta[0] += 1;
+	}
+	return [pos[0] + delta[0] , pos[1] + delta[1]];
+}
+function h( a , b ) {
+	return Math.sqrt( ( a[0] - b[0] )**2 + ( a[1] - b[1] )**2 );
+
+}
+function getLowestF( open ) {
+	let lowestKey = false;
+	let lowestValue = Infinity;
+	open.forEach( ( v , key ) => {
+		if ( v[0] < lowestValue ) {
+			lowestValue = v[0];
+			lowestKey = key;
+		}
+	} );
+	return lowestKey;
+}
+function getNeighbours( currentKey ) {
+	let coords = currentKey.split( "-" ).map( v => parseInt( v ) );
+	let hexOffsets = [[1,0],[1,-1],[0,1],[0,-1],[-1,1],[-1,0]];
+	let neighbours = hexOffsets.map( delta => addDeltaPlusOffset( coords , delta ) );
+	let validNeighbours = neighbours.filter( v => world.tileIsPassable( v ) );
+	return validNeighbours.map( v => v );
+}
+const posToString = ( pos ) => pos[0] + "-" + pos[1];
+const stringToPos = ( str ) => str.split( "-" ).map( v => parseInt( v ) );
+function pathfind( endCoords ) {
+	const start = posToString( hero.pos );
+	const end = posToString( endCoords );
+	let open = new Map();
+	let closed = new Map();
+	let firstH = h( hero.pos , endCoords );
+	open.set( start , [firstH , 0 , firstH , start] ); // [f , g , h]
+	while ( open.size != 0 ) {
+		let currentKey = getLowestF( open );
+		closed.set( currentKey , open.get( currentKey ) );
+		open.delete( currentKey );
+		if ( currentKey == end ) {
+			let path = [];
+			while ( currentKey != start ) {
+				path.push( currentKey );
+				currentKey = closed.get( currentKey )[3];
+				console.log( currentKey );
+			}
+			console.log( path );
+			return path;
+		}
+		let neighbours = getNeighbours( currentKey );
+		neighbours.forEach( coords => {
+			let key = posToString( coords );
+			if ( closed.has( key ) ) {
+				return
+			}
+			let gScoreNew = closed.get( currentKey )[1] + 1;
+			if ( !open.has( key ) || gScoreNew < open.get( key )[1] ) {
+				let hScore = h( coords , endCoords );
+				let fScore = hScore + gScoreNew
+				open.set( key , [fScore , gScoreNew , hScore , currentKey] );
+			}
+		} );
+	}
+
+}
