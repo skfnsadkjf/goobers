@@ -98,27 +98,19 @@ function attemptMove(world, hero, delta) {
 		hero.pos = newCoords;
 	}
 }
-function onclick( e ) {
-	let y = Math.floor( e.clientY / TILE_Y );
-	let offsetX = e.clientX - ( y % 2 ) * TILE_X / 2 ;
+function screenPosToCoords( screenX , screenY ) {
+	let y = Math.floor( screenY / TILE_Y );
+	let offsetX = screenX - ( y % 2 ) * TILE_X / 2;
 	let x = Math.floor( offsetX / TILE_X );
-	let xr = offsetX % TILE_X;
-	let yr = e.clientY % TILE_Y;
-	if ( yr < 15 ) {
-		if ( xr < TILE_X / 2 ) {
-			if ( xr / ( TILE_X / 2 ) + yr / TILE_R <= 1 ) {
-				x -= ( y + 1 ) % 2;
-				y--;
-			}
-		}
-		else {
-			if ( ( xr - TILE_X / 2 ) / ( TILE_X / 2 ) > yr / TILE_R ) {
-				x += y % 2;
-				y--;
-			}
-		}
+	let dongs = ( offsetX % TILE_X - TILE_X / 2 ) * 0.577350; // 0.577350 normalises TILE_X / 2 to TILE_Y / 3.
+	if ( Math.abs( dongs ) > screenY % TILE_Y ) {
+		let deltaX = ( dongs < 0 ) ? 0 : 1;
+		[x , y] = addDeltaPlusOffset( [x , y] , [deltaX , -1] );
 	}
-	let coords = [x , y];
+	return [x , y];
+}
+function onclick( e ) {
+	let coords = screenPosToCoords( e.clientX , e.clientY );
 	let path = pathfind( coords );
 	if ( path && path.length > 0 ) {
 		path = path.map( v => stringToPos( v ) );
