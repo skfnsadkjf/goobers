@@ -69,6 +69,7 @@ function coordsToScreenPos( x , y ) {
 	return [drawX , drawY];
 }
 function draw( world ) {
+	console.log( "dongs" );
 	for (y = 0; y < world.dimensions; y++) {
 		for (x = 0; x < world.dimensions; x++) {
 			let [drawX , drawY] = coordsToScreenPos( x , y );
@@ -196,10 +197,10 @@ function pathfind( endCoords ) {
 function onmousemove( e ) {
 	let border = world.entities.find( entity => entity.tile == "border" );
 	let [x , y] = screenPosToCoords( e.clientX , e.clientY );
-	let doDraw = false;
-	if ( border == undefined || border.pos[0] != x || border.pos[1] != y ) {
-		doDraw = true;
-	}
+	// let doDraw = false;
+	// if ( border == undefined || border.pos[0] != x || border.pos[1] != y ) {
+	// 	doDraw = true;
+	// }
 	if ( border == undefined ) {
 		let border = { "pos" : [x , y] , "tile" : "border" }
 		world.entities.push( border);
@@ -207,9 +208,9 @@ function onmousemove( e ) {
 	else {
 		border.pos = [x , y];
 	}
-	if ( doDraw ) {
+	// if ( doDraw ) {
 		draw( world );
-	}
+	// }
 }
 function oninput( e ) {
 	if ( e.key == "f" ) {
@@ -244,6 +245,7 @@ window.onload = e => {
 	canvas.width = window.innerWidth;
 	draw( world );
 }
+// window.setInterval( draw , 1000/60 , world );
 canvas.addEventListener( "click" , oninput );
 canvas.addEventListener( "mousemove" , onmousemove );
 document.addEventListener('keydown', oninput );
