@@ -193,8 +193,23 @@ function pathfind( endCoords ) {
 // pathfinding end
 // =====================
 
-function ommousemove( e ) {
-	let border = world.entities.find()
+function onmousemove( e ) {
+	let border = world.entities.find( entity => entity.tile == "border" );
+	let [x , y] = screenPosToCoords( e.clientX , e.clientY );
+	let doDraw = false;
+	if ( border == undefined || border.pos[0] != x || border.pos[1] != y ) {
+		doDraw = true;
+	}
+	if ( border == undefined ) {
+		let border = { "pos" : [x , y] , "tile" : "border" }
+		world.entities.push( border);
+	}
+	else {
+		border.pos = [x , y];
+	}
+	if ( doDraw ) {
+		draw( world );
+	}
 }
 function oninput( e ) {
 	if ( e.key == "f" ) {
@@ -230,5 +245,6 @@ window.onload = e => {
 	draw( world );
 }
 canvas.addEventListener( "click" , oninput );
+canvas.addEventListener( "mousemove" , onmousemove );
 document.addEventListener('keydown', oninput );
 // world.print( [hero] );
