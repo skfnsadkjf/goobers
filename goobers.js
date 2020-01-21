@@ -1,4 +1,3 @@
-// import "./pathfinding.js"
 import { pathfind } from "./pathfinding.js";
 import { draw } from "./canvas.js";
 export { TILE_X , TILE_Y , addDeltaPlusOffset };
@@ -12,7 +11,7 @@ class World {
 		this.dimensions = dimensions
 		this.data = Array.from({length: dimensions}, () => {
 			return Array.from({length: dimensions}, () => {
-				return Math.random() > 0.3 ? 0 : 3;
+				return Math.random() > 0.1 ? 0 : 3;
 			} );
 		} );
 		this.entities = [];
@@ -60,12 +59,6 @@ function addDeltaPlusOffset( x , y , dx , dy ) {
 	}
 	return [x + dx , y + dy];
 }
-function attemptMove(world, hero, delta) {
-	let newCoords = addDeltaPlusOffset( ...hero.pos , ...delta );
-	if ( world.tileIsPassable( newCoords ) ) {
-		hero.pos = newCoords;
-	}
-}
 function screenPosToCoords( screenX , screenY ) {
 	let y = Math.floor( screenY / TILE_Y );
 	let offsetX = screenX - ( y % 2 ) * TILE_X / 2;
@@ -77,12 +70,35 @@ function screenPosToCoords( screenX , screenY ) {
 	}
 	return [x , y];
 }
+function fight( entity1 , entity2 ) {
+	console.log( entity1.army );
+	console.log( entity2.army );
+	let temp = entity1.army;
+	entity1.army -= entity2.army;
+	entity2.army -= temp;
+	world.entities = world.entities.filter( v => !( "army" in v ) || v.army >= 0 );
+	console.log( world.entities );
+}
+function checkTwoEntitiesInSameSpace() {
+	world.entities.forEach( v => {
+		if ( v.tile != "hero" && v.tile == "gobbo" && v.pos[0] == hero.pos[0] && v.pos[1] == hero.pos[1] ) {
+			fight( hero , v );
+		}
+	} );
+}
 function moveGuy( path ) {
 	if ( path[0] ) {
 		hero.pos = path.pop();
+		checkTwoEntitiesInSameSpace();
 		draw( world );
 		window.setTimeout( moveGuy , MOVE_SPEED , path );
 	}
+}
+function moveOneSpace( dx , dy ) {
+	let convertedDelta = addDeltaPlusOffset( hero.pos[0] , hero.pos[1] , dx , dy );
+	let path = pathfind( convertedDelta , hero , world );
+	moveGuy( path );
+	draw( world );
 }
 function onmousemove( e ) {
 	let [x , y] = screenPosToCoords( e.clientX , e.clientY );
@@ -98,34 +114,35 @@ function onclick( e ) {
 		draw( world );
 	}
 }
-function oninput( e ) {
+function onkeydown( e ) {
 	if ( e.key == "f" ) {
-		attemptMove(world, hero, [1, 0])
+		moveOneSpace( 1 , 0 );
 	}
 	if ( e.key == "s" ) {
-		attemptMove(world, hero, [-1, 0])
+		moveOneSpace( -1 , 0 );
 	}
 	if ( e.key == "r" ) {
-		attemptMove(world, hero, [1, -1])
+		moveOneSpace( 1 , -1 );
 	}
 	if ( e.key == "e" ) {
-		attemptMove(world, hero, [0, -1])
+		moveOneSpace( 0 , -1 );
 	}
 	if ( e.key == "x" ) {
-		attemptMove(world, hero, [-1, 1])
+		moveOneSpace( -1 , 1 );
 	}
 	if ( e.key == "c" ) {
-		attemptMove(world, hero, [0, 1])
+		moveOneSpace( 0 , 1 );
 	}
-	draw( world );
 }
 
 let world = new World( mapSize )
-let hero = { "pos" : [0 , 0] , "tile" : "hero" , "army" : Array( 7 ).push( ["gobbo" , 10] ) };
+let hero = { "pos" : [0 , 0] , "tile" : "hero" , "army" : 10 };
 let border = { "pos" : [0 , 0] , "tile" : "border" };
-let creature = { "pos" : [10 , 10] , "tile" : "gobbo" , "army" : Array( 7 ).push( ["gobbo" , 5] ) };
-world.entities.push( hero , border , creature );
+let creature = { "pos" : [10 , 10] , "tile" : "gobbo" , "army" : 7 };
+let creature1 = { "pos" : [5 , 5] , "tile" : "gobbo" , "army" : 7 };
+let creature2 = { "pos" : [5 , 10] , "tile" : "gobbo" , "army" : 7 };
+world.entities.push( hero , border , creature , creature1 , creature2 );
 document.addEventListener( "click" , onclick );
 document.addEventListener( "mousemove" , onmousemove );
-document.addEventListener('keydown', oninput );
+document.addEventListener( "keydown" , onkeydown );
 draw( world );

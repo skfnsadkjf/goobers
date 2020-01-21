@@ -21,7 +21,6 @@ function coordsToScreenPos( x , y ) {
 	return [drawX , drawY];
 }
 function draw( world ) {
-	console.log( "dongs" );
 	// get hexes in area then only draw those.
 	let minX = 10;
 	let minY = 10;
