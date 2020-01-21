@@ -5,8 +5,8 @@ const ctx = canvas.getContext( "2d" );
 const tileWidth = 60;
 const tileHeight = 51; // height between tiles
 const tileHeightTrue = 68; // actual height of a tile.
-const worldWindowOffsetWidth = 50;
-const worldWindowOffsetHeight = 50;
+const worldWindowOffsetWidth = 25;
+const worldWindowOffsetHeight = 25;
 const scrollSpeed = 40;
 const tile = {
 	"grass" : 0 ,
@@ -28,8 +28,8 @@ let scrollDirectionY = 0;
 function setSize() {
 	canvas.width = window.innerWidth;
 	canvas.height = window.innerHeight;
-	worldWindowWidth = canvas.width - worldWindowOffsetWidth - 600; // minus left offset and right offset.
-	worldWindowHeight = canvas.height - worldWindowOffsetHeight - 300; // minus top offset and bottom offset.
+	worldWindowWidth = canvas.width - worldWindowOffsetWidth - 300; // minus left offset and right offset.
+	worldWindowHeight = canvas.height - worldWindowOffsetHeight - 25; // minus top offset and bottom offset.
 }
 function screenPosToCoords( screenX , screenY ) {
 	screenX -= worldWindowOffsetWidth - scrollX;
@@ -76,8 +76,7 @@ function draw() {
 		}
 	}
 	world.entities.forEach( entity => {
-		let [drawX , drawY] = coordsToScreenPos( entity.pos[0] , entity.pos[1] );
-		ctx.drawImage( tileGraphics[tile[entity.tile]] , drawX , drawY );
+		drawTile( entity.pos[0] , entity.pos[1] , tileGraphics[tile[entity.tile]] );
 	} );
 	ctx.strokeStyle = "green";
 	ctx.lineWidth = 1;
@@ -86,7 +85,6 @@ function draw() {
 }
 function scroll() {
 	if ( scrollDirectionX != 0 || scrollDirectionY != 0 ) {
-
 		let minScrollX = -worldWindowWidth / 2;
 		let minScrollY = -worldWindowHeight / 2;
 		let maxScrollX = tileWidth * world.dimensions - worldWindowWidth / 2;
@@ -103,7 +101,7 @@ function onmousemove( e ) {
 	scrollDirectionX = e.clientX < r ? -1 : e.clientX > canvas.width - r ? 1 : 0;
 	scrollDirectionY = e.clientY < r ? -1 : e.clientY > canvas.height - r ? 1 : 0;
 }
-window.setInterval( scroll , 100 );
+window.setInterval( scroll , 50 );
 window.addEventListener( "resize" , setSize );
 canvas.addEventListener( "mousemove" , onmousemove );
 setSize();
