@@ -1,6 +1,6 @@
 import { pathfind } from "./pathfinding.js";
 import { draw , screenPosToCoords } from "./canvas.js";
-export { addDeltaPlusOffset };
+export { addDeltaPlusOffset , activeWorld };
 const mapSize = 25;
 const symbols = ['.', '#' , "$"]
 const MOVE_SPEED = 20;
@@ -122,7 +122,8 @@ function onkeydown( e ) {
 	}
 }
 
-let world = new World( mapSize )
+let world = new World( mapSize );
+let activeWorld = world;
 let hero = { "pos" : [1 , 1] , "tile" : "hero" , "army" : 10 };
 let outline = { "pos" : [0 , 0] , "tile" : "outline" };
 let creature = { "pos" : [10 , 10] , "tile" : "gobbo" , "army" : 7 };
