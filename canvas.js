@@ -5,8 +5,8 @@ const ctx = canvas.getContext( "2d" );
 const tileWidth = 60;
 const tileHeight = 51;
 const tileHeightTrue = 68;
-const worldWindowOffsetWidth = 150;
-const worldWindowOffsetHeight = 150;
+const worldWindowOffsetWidth = 50;
+const worldWindowOffsetHeight = 50;
 const tile = {
 	"grass" : 0 ,
 	"rock" : 1 ,
@@ -44,8 +44,8 @@ function coordsToScreenPos( x , y ) {
 	return [drawX , drawY];
 }
 function draw( world ) {
-	let worldWindowWidth = 500 // canvas.width - 600 - worldWindowOffsetWidth; // minus right offset and left offset.
-	let worldWindowHeight = 500 // canvas.height - 100 - worldWindowOffsetHeight; // minus bottom offset and top offset.
+	let worldWindowWidth = canvas.width - 600 - worldWindowOffsetWidth; // minus right offset and left offset.
+	let worldWindowHeight = canvas.height - 100 - worldWindowOffsetHeight; // minus bottom offset and top offset.
 	let tilesToShowX = Math.ceil( worldWindowWidth / tileWidth );
 	let tilesToShowY = Math.ceil( worldWindowHeight / tileHeight );
 	for ( let y = -1; y < tilesToShowY; y++ ) {
