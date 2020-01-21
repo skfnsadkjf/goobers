@@ -1,9 +1,7 @@
 import { pathfind } from "./pathfinding.js";
-import { draw } from "./canvas.js";
-export { TILE_X , TILE_Y , addDeltaPlusOffset };
+import { draw , screenPosToCoords } from "./canvas.js";
+export { addDeltaPlusOffset };
 const mapSize = 25;
-const TILE_X = 60;
-const TILE_Y = Math.floor( TILE_X * 0.866025 ); // Represents height to begin tiling, NOT tile height. Assumes regular hexagon.
 const symbols = ['.', '#' , "$"]
 const MOVE_SPEED = 20;
 class World {
@@ -59,17 +57,6 @@ function addDeltaPlusOffset( x , y , dx , dy ) {
 	}
 	return [x + dx , y + dy];
 }
-function screenPosToCoords( screenX , screenY ) {
-	let y = Math.floor( screenY / TILE_Y );
-	let offsetX = screenX - ( y % 2 ) * TILE_X / 2;
-	let x = Math.floor( offsetX / TILE_X );
-	let dongs = ( offsetX % TILE_X - TILE_X / 2 ) * 0.577350; // 0.577350 normalises TILE_X / 2 to TILE_Y / 3.
-	if ( Math.abs( dongs ) > screenY % TILE_Y ) {
-		let deltaX = ( dongs < 0 ) ? 0 : 1;
-		[x , y] = addDeltaPlusOffset( x , y , deltaX , -1 );
-	}
-	return [x , y];
-}
 function fight( entity1 , entity2 ) {
 	console.log( entity1.army );
 	console.log( entity2.army );
@@ -102,8 +89,8 @@ function moveOneSpace( dx , dy ) {
 }
 function onmousemove( e ) {
 	let [x , y] = screenPosToCoords( e.clientX , e.clientY );
-	if ( border.pos[0] != x || border.pos[1] != y ) {
-		border.pos = [x , y];
+	if ( outline.pos[0] != x || outline.pos[1] != y ) {
+		outline.pos = [x , y];
 		draw( world );
 	}
 }
@@ -136,12 +123,12 @@ function onkeydown( e ) {
 }
 
 let world = new World( mapSize )
-let hero = { "pos" : [0 , 0] , "tile" : "hero" , "army" : 10 };
-let border = { "pos" : [0 , 0] , "tile" : "border" };
+let hero = { "pos" : [1 , 1] , "tile" : "hero" , "army" : 10 };
+let outline = { "pos" : [0 , 0] , "tile" : "outline" };
 let creature = { "pos" : [10 , 10] , "tile" : "gobbo" , "army" : 7 };
 let creature1 = { "pos" : [5 , 5] , "tile" : "gobbo" , "army" : 7 };
 let creature2 = { "pos" : [5 , 10] , "tile" : "gobbo" , "army" : 7 };
-world.entities.push( hero , border , creature , creature1 , creature2 );
+world.entities.push( hero , outline , creature , creature1 , creature2 );
 document.addEventListener( "click" , onclick );
 document.addEventListener( "mousemove" , onmousemove );
 document.addEventListener( "keydown" , onkeydown );

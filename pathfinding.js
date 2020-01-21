@@ -1,4 +1,4 @@
-import { TILE_X , TILE_Y , addDeltaPlusOffset } from "./goobers.js";
+import { addDeltaPlusOffset } from "./goobers.js";
 export { pathfind };
 const hexOffsets = [[1,0],[1,-1],[0,1],[0,-1],[-1,1],[-1,0]];
 const posToString = ( pos ) => pos[0] + "-" + pos[1];
