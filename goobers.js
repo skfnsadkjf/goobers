@@ -1,6 +1,6 @@
 import { pathfind } from "./pathfinding.js";
 import { draw , screenPosToCoords } from "./canvas.js";
-export { addDeltaPlusOffset , activeWorld };
+export { addDeltaPlusOffset , world };
 const mapSize = 25;
 const symbols = ['.', '#' , "$"]
 const MOVE_SPEED = 20;
@@ -77,7 +77,7 @@ function moveGuy( path ) {
 	if ( path[0] ) {
 		hero.pos = path.pop();
 		checkTwoEntitiesInSameSpace();
-		draw( world );
+		draw();
 		window.setTimeout( moveGuy , MOVE_SPEED , path );
 	}
 }
@@ -85,20 +85,20 @@ function moveOneSpace( dx , dy ) {
 	let convertedDelta = addDeltaPlusOffset( hero.pos[0] , hero.pos[1] , dx , dy );
 	let path = pathfind( convertedDelta , hero , world );
 	moveGuy( path );
-	draw( world );
+	draw();
 }
 function onmousemove( e ) {
 	let [x , y] = screenPosToCoords( e.clientX , e.clientY );
 	if ( outline.pos[0] != x || outline.pos[1] != y ) {
 		outline.pos = [x , y];
-		draw( world );
+		draw();
 	}
 }
 function onclick( e ) {
 	if ( e.button == 0 ) {
 		let path = pathfind( screenPosToCoords( e.clientX , e.clientY ) , hero , world );
 		moveGuy( path );
-		draw( world );
+		draw();
 	}
 }
 function onkeydown( e ) {
@@ -123,7 +123,6 @@ function onkeydown( e ) {
 }
 
 let world = new World( mapSize );
-let activeWorld = world;
 let hero = { "pos" : [1 , 1] , "tile" : "hero" , "army" : 10 };
 let outline = { "pos" : [0 , 0] , "tile" : "outline" };
 let creature = { "pos" : [10 , 10] , "tile" : "gobbo" , "army" : 7 };
@@ -133,4 +132,4 @@ world.entities.push( hero , outline , creature , creature1 , creature2 );
 document.addEventListener( "click" , onclick );
 document.addEventListener( "mousemove" , onmousemove );
 document.addEventListener( "keydown" , onkeydown );
-draw( world );
+draw();

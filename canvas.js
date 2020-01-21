@@ -1,4 +1,4 @@
-import { addDeltaPlusOffset , activeWorld } from "./goobers.js";
+import { addDeltaPlusOffset , world } from "./goobers.js";
 export { draw , screenPosToCoords };
 const canvas = document.getElementById( "canvas" );
 const ctx = canvas.getContext( "2d" );
@@ -8,10 +8,6 @@ const tileHeightTrue = 68; // actual height of a tile.
 const worldWindowOffsetWidth = 50;
 const worldWindowOffsetHeight = 50;
 const scrollSpeed = 40;
-let worldWindowWidth;
-let worldWindowHeight;
-let scrollX = 100;
-let scrollY = 100;
 const tile = {
 	"grass" : 0 ,
 	"rock" : 1 ,
@@ -23,6 +19,12 @@ const tile = {
 	"border" : 7 ,
 }
 const tileGraphics = Object.keys( tile ).map( v => document.getElementById( "tile_" + v ) );
+let worldWindowWidth;
+let worldWindowHeight;
+let scrollX = 100;
+let scrollY = 100;
+let scrollDirectionX = 0;
+let scrollDirectionY = 0;
 function setSize() {
 	canvas.width = window.innerWidth;
 	canvas.height = window.innerHeight;
@@ -60,7 +62,7 @@ function drawTile( x , y , t ) {
 		ctx.drawImage( t , sx , sy , sWidth , sHeight , drawX + sx , drawY + sy , sWidth , sHeight );
 	}
 }
-function draw( world ) {
+function draw() {
 	let x = Math.floor( scrollX / tileWidth );
 	let y = Math.floor( scrollY / tileHeight );
 	let tilesToDrawX = x + Math.ceil( worldWindowWidth / tileWidth );
@@ -82,16 +84,18 @@ function draw( world ) {
 	ctx.strokeRect( worldWindowOffsetWidth , worldWindowOffsetHeight , worldWindowWidth , worldWindowHeight );
 	ctx.strokeRect( 0 , 0 , canvas.width , canvas.height );
 }
-let scrollDirectionX = 0;
-let scrollDirectionY = 0;
 function scroll() {
-	console.log( "dongs" );
 	if ( scrollDirectionX != 0 || scrollDirectionY != 0 ) {
 
-		scrollX += scrollSpeed * scrollDirectionX;
-		scrollY += scrollSpeed * scrollDirectionY;
-		draw( activeWorld );
-		console.log( scrollX );
+		let minScrollX = -worldWindowWidth / 2;
+		let minScrollY = -worldWindowHeight / 2;
+		let maxScrollX = tileWidth * world.dimensions - worldWindowWidth / 2;
+		let maxScrollY = tileHeight * world.dimensions - worldWindowHeight / 2;
+		scrollX = scrollX + scrollSpeed * scrollDirectionX;
+		scrollY = scrollY + scrollSpeed * scrollDirectionY;
+		scrollX = Math.max( minScrollX , Math.min( scrollX , maxScrollX ) );
+		scrollY = Math.max( minScrollY , Math.min( scrollY , maxScrollY ) );
+		draw();
 	}
 }
 function onmousemove( e ) {
