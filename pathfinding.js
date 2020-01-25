@@ -1,4 +1,3 @@
-import { addDeltaPlusOffset } from "./goobers.js";
 export { pathfind };
 const hexOffsets = [[1,0],[1,-1],[0,1],[0,-1],[-1,1],[-1,0]];
 const posToString = ( pos ) => pos[0] + "-" + pos[1];
@@ -14,11 +13,6 @@ function getLowestF( open ) {
 		}
 	} );
 	return lowestKey;
-}
-function getNeighbours( currentKey , world ) {
-	let coords = currentKey.split( "-" ).map( v => parseInt( v ) );
-	let neighbours = hexOffsets.map( delta => addDeltaPlusOffset( ...coords , ...delta ) );
-	return neighbours.filter( v => world.tileIsPassable( v ) );
 }
 function pathfind( endCoords , hero , world ) {
 	const start = posToString( hero.pos );
@@ -41,7 +35,8 @@ function pathfind( endCoords , hero , world ) {
 			console.log( path );
 			return path.map( v => stringToPos( v ) );
 		}
-		let neighbours = getNeighbours( currentKey , world );
+		let neighbours = world.getNeighbours( ...stringToPos( currentKey ) );
+		neighbours = neighbours.filter( v => world.tileIsPassable( ...v ) );
 		neighbours.forEach( coords => {
 			let key = posToString( coords );
 			if ( closed.has( key ) ) {

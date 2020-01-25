@@ -1,62 +1,10 @@
 import { pathfind } from "./pathfinding.js";
 import { draw , screenPosToCoords } from "./canvas.js";
-export { addDeltaPlusOffset , world };
+import { newWorld } from "./world.js";
+export { world };
 const mapSize = 25;
 const symbols = ['.', '#' , "$"]
 const MOVE_SPEED = 20;
-class World {
-	constructor(dimensions) {
-		this.dimensions = dimensions
-		this.data = Array.from({length: dimensions}, () => {
-			return Array.from({length: dimensions}, () => {
-				return Math.random() > 0.1 ? 0 : 3;
-			} );
-		} );
-		this.entities = [];
-	}
-	get(coords) {
-		return this.data[coords[0]][coords[1]];
-	}
-	set( coords , tileType ) {
-		this.data[coords[0]][coords[1]] = tileType;
-	}
-	print(entities) {
-		// Build up an array of strings which will represent the world
-		let print_arr = Array.from( { "length" : this.dimensions } , v => "" );
-		this.data.forEach( ( col , x ) => {
-			col.forEach( ( v , y ) => {
-				let drawhero = entities.some(v => {
-					return v.pos[0] == x && v.pos[1] == y
-				})
-				print_arr[y] += drawhero ? '%' : v
-
-			} );
-		} );
-		// Print our array of strings
-		console.log( print_arr.join( "\n" ) );
-	}
-	tileIsPassable( coords ) {
-		if (coords[0] >= 0 &&
-			coords[1] >= 0 &&
-			coords[0] < this.dimensions &&
-			coords[1] < this.dimensions) {
-			return this.get(coords) != 3;
-		} else {
-			// Out of bounds
-			return false
-		}
-	}
-}
-function addDeltaPlusOffset( x , y , dx , dy ) {
-	let isEven = y % 2 == 0;
-	if ( isEven && dy == -1 ) {
-		dx -= 1;
-	}
-	if ( !isEven && dy == 1 ) {
-		dx += 1;
-	}
-	return [x + dx , y + dy];
-}
 function fight( entity1 , entity2 ) {
 	console.log( entity1.army );
 	console.log( entity2.army );
@@ -82,7 +30,7 @@ function moveGuy( path ) {
 	}
 }
 function moveOneSpace( dx , dy ) {
-	let convertedDelta = addDeltaPlusOffset( hero.pos[0] , hero.pos[1] , dx , dy );
+	let convertedDelta = world.getNeighbour( hero.pos[0] , hero.pos[1] , dx , dy );
 	let path = pathfind( convertedDelta , hero , world );
 	moveGuy( path );
 	draw();
@@ -122,7 +70,7 @@ function onkeydown( e ) {
 	}
 }
 
-let world = new World( mapSize );
+let world = newWorld( mapSize );
 let hero = { "pos" : [1 , 1] , "tile" : "hero" , "army" : 10 };
 let outline = { "pos" : [0 , 0] , "tile" : "outline" };
 let creature = { "pos" : [10 , 10] , "tile" : "gobbo" , "army" : 7 };

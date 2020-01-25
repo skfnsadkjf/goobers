@@ -1,4 +1,4 @@
-import { addDeltaPlusOffset , world } from "./goobers.js";
+import { world } from "./goobers.js";
 export { draw , screenPosToCoords };
 const canvas = document.getElementById( "canvas" );
 const ctx = canvas.getContext( "2d" );
@@ -40,7 +40,7 @@ function screenPosToCoords( screenX , screenY ) {
 	let dongs = ( offsetX % tileWidth - tileWidth / 2 ) * 0.577350; // 0.577350 normalises tileWidth / 2 to tileHeight / 3.
 	if ( Math.abs( dongs ) > screenY % tileHeight ) {
 		let deltaX = ( dongs < 0 ) ? 0 : 1;
-		[x , y] = addDeltaPlusOffset( x , y , deltaX , -1 );
+		[x , y] = world.getNeighbour( x , y , deltaX , -1 );
 	}
 	return [x , y];
 }
@@ -70,7 +70,7 @@ function draw() {
 	for ( let y = -1; y <= tilesToDrawY; y++ ) {
 		for ( let x = -1; x <= tilesToDrawX; x++ ) {
 			let outOfBounds = x < 0 || y < 0 || x >= world.dimensions || y >= world.dimensions;
-			let tileId = outOfBounds ? 7 : world.get( [x , y] );
+			let tileId = outOfBounds ? 7 : world.get( x , y );
 			let t = tileGraphics[tileId];
 			drawTile( x , y , t );
 		}
